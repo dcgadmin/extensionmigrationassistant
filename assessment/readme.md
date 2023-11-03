@@ -4,8 +4,7 @@ The AWS SCT Extension is primarily introduced as part of the conversion process 
 
 For customers migrating from a commercial engine like Oracle to SQL Server, the Extension Pack acts as a proprietary toolset. AWS SCT introduces it as wrapper code that mimics the functionality of commercial engine features or functions. This wrapper code is encapsulated within schemas and is extensively leveraged in the converted code.
 
-<img width="618" alt="image" src="https://github.com/dcgadmin/sctmigrator/assets/137620464/6d8a5d0b-e7fd-48fb-bb8a-a6ad820cb021">
-
+<img width="454" alt="image" src="https://github.com/dcgadmin/sctextensionmigrator/assets/137620464/e6797f5f-3917-4d8b-8b31-e6e57ddc1732">
 
 
 Below are some of the pros and cons of using AWS SCT Extension Pack on migrated databases primary on RDS or Amazon Aurora
@@ -30,7 +29,8 @@ To illustrate its functionality, let's consider a sample function, INSTR, common
 
 However, it's important to note that, over time, customers who have migrated their databases to AWS PostgreSQL-compatible instances may encounter challenges if they decide to migrate to Google Cloud's PostgreSQL-compatible options. This challenge arises due to the dependencies and inherent stickiness of the Extension Pack.
 
-<img width="1570" alt="image" src="https://github.com/dcgadmin/sctmigrator/assets/137620464/2dc6ce3a-820c-45ad-9182-0f6b3b92400f">
+<img width="1113" alt="image" src="https://github.com/dcgadmin/sctextensionmigrator/assets/137620464/bb79ce83-e010-48ec-92b7-5283ff7ff5cc">
+
 
 # SCT Extension Assessment
 
