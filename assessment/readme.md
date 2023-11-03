@@ -128,3 +128,6 @@ You will also get a zip file which contains the html report, charts (.png) and c
 ```sh
 SCTAssessment.zip
 ```
+
+
+Check out [sample report](https://drive.google.com/file/d/1xnmCv7-FyDz6SkgHdYidCDBeGTObofON/view?usp=sharing) generated on sample schema migrated using AWS SCT and using AWS_ORACLE_EXT.
