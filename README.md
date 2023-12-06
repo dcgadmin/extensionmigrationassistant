@@ -1,4 +1,4 @@
-# ExtensionMigrationAssistance.
+# Extension Migration Assistance.
 
 Facilitate assessment and migration of Cloud native Extension code used within Database code logic when migrated to Amazon Aurora or RDS Managed PostgreSQL Compatible Instance.
 
