@@ -44,5 +44,8 @@ Through our assessment process, we can scan the migrated code in PostgreSQL or M
 
 By analyzing the usage patterns, we can categorize the dependency on the extension pack as Simple, Medium, or Complex. This categorization helps to highlight the efforts required to address extension dependencies and resolve them using native PostgreSQL solutions like Orafce or native functionality.
 
+For further read and sample report, please check out.
+https://github.com/dcgadmin/extensionmigrationassistant/blob/main/assessment/readme.md
+
 ### Contact Details for further details
 Contact@datacloudgaze.com
