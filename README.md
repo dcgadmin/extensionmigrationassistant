@@ -23,7 +23,7 @@ Below are some of the pros and cons of using ConversionExtension Pack on migrate
 - Known Performance issues with Extension pack.
 - Reduce Code readability and future development or refactor.
 - No Documentation, Maintainence for future releases or enhancement. 
-- Tightly coupled with a Specific Cloud Vendor and not open move freely.
+- Tightly coupled with a Specific Cloud Vendor and not open to move freely.
 
 ## How Conversion Extension Pack is Introduce
 
