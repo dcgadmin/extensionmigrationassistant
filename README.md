@@ -1,6 +1,6 @@
 # Extension Migration Assistance.
 
-Facilitate assessment and migration of Cloud native Extension code used within Database code logic when migrated to Amazon Aurora or RDS Managed PostgreSQL Compatible Instance.
+Our Goal is to transform any migration to PostgreSQL or PostgreSQL Compatible as Open, Agile and Free from any kind of lockin. The aim is to provide customers moving away from commercial database engines like Oracle or MSSQL with the freedom to choose any platform without hidden restrictions or stickiness.
 
 
 ### Contact Details
