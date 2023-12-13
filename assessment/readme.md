@@ -69,7 +69,7 @@ pip3 install matplotlib==3.5.3
 pip3 install SQLAlchemy==2.0.22
 pip3 install pandas==1.3.5
 pip3 install numpy==1.21.6
-pip3 instal Jinja2==3.1.2
+pip3 install Jinja2==3.1.2
 ```
 
 Or
