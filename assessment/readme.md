@@ -89,4 +89,4 @@ SCTAssessment.zip
 ```
 
 
-Check out [sample report](https://drive.google.com/file/d/1wvciyyuvc7ZeWTHUw1EJ2xd48WKjKCyP/view?usp=sharing) generated on sample schema migrated using AWS SCT and using AWS_ORACLE_EXT.
+Check out [sample report](https://drive.google.com/file/d/1wvciyyuvc7ZeWTHUw1EJ2xd48WKjKCyP/view?usp=sharing) generated on sample schema migrated using AWS Schema Conversion Tool and using Extension packs(AWS_ORACLE_EXT).
