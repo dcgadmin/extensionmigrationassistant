@@ -48,4 +48,6 @@ For further read and sample report, please check out.
 https://github.com/dcgadmin/extensionmigrationassistant/blob/main/assessment/readme.md
 
 ### Contact Details for further details
+If you are looking for automated solution to transform embedded extensions packs within procedural or schema, let us know we an assist and provide guidance.
+We facilitate yours database codebases as native and open for all platform.
 Contact@datacloudgaze.com
