@@ -727,7 +727,7 @@ aws_oracle_ext.userenv_number,USER_ENV,SIMPLE,0.5
 aws_oracle_ext.setglobalvariable,GLOBAL_VAR,COMPLEX,4
 aws_oracle_ext.packageinitialize,GLOBAL_VAR,COMPLEX,4
 aws_oracle_ext.getglobalvariable,GLOBAL_VAR,COMPLEX,4
-aws_oracle_ext.dbms_output$put_line,PRINT_FUNC,SIMPLE,0.5
+aws_oracle_ext.dbms_output$put_line,PRINT_FUNC,SIMPLE,1
 aws_oracle_ext.dbms_lob$read,LOB_PROCESSING_DBMS,COMPLEX,4
 aws_oracle_ext.dbms_lob$getlength,LOB_PROCESSING_DBMS,COMPLEX,4
 aws_oracle_ext.array$delete,COLLECTION_PROCESSING,COMPLEX,4

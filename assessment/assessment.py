@@ -1,22 +1,21 @@
 import pandas as pd
+import numpy as np
 from sqlalchemy import create_engine, text
 from jinja2 import Environment, FileSystemLoader
 from matplotlib import pyplot as plt
 import os
-import csv
 import shutil
 import argparse
 import numpy as np
-
 from argparse import RawTextHelpFormatter
 
-env = Environment(loader=FileSystemLoader(''))
-template = env.get_template('SCTAssessmentReportTemplate.html')
-
-
-def create_connection(host, port, database, user, password):
-    alchemy_connection = f"postgresql://{user}:{password}@{host}:{port}/{database}"
-    return alchemy_connection
+def load_template():
+    try:
+        env = Environment(loader=FileSystemLoader(''))
+        template = env.get_template('SCTAssessmentReportTemplate.html')
+        return template
+    except Exception as e:
+        print(f"{e}\nUnable to load SCTAssessmentReportTemplate.html")
 
 def connection_arguments():
     parser = argparse.ArgumentParser(description='Capture AWS SCT Extension usage complexity metrics for Proprietary database \n migrated to RDS\Amazon Aurora PostgreSQL Compataible' , formatter_class=RawTextHelpFormatter)
@@ -26,32 +25,127 @@ def connection_arguments():
     parser.add_argument('--user', required=True, help='Database user')
     parser.add_argument('--password', required=True ,help='Database password')
     parser.add_argument('--pg-schema', required=False ,help = "List of Comma separated list of schema name")
-
     args = parser.parse_args()
-
-    alchemy_connection = create_connection(args.host, args.port, args.database, args.user, args.password)
     
-    engine = create_engine(alchemy_connection)
-    conn = engine.connect()
+    try:
+        alchemy_connection = f"postgresql://{args.user}:{args.password}@{args.host}:{args.port}/{args.database}"
+        engine = create_engine(alchemy_connection)
+        conn = engine.connect()
+        return conn,args,parser
+    except Exception as e:
+        print(e)
 
-    return conn,args,parser
+def read_data_from_csv():
+    try:
+        data = pd.read_csv("sct_input.csv")
+        aws_df = pd.read_csv("awssctcomplexitymatrix.csv")
+        return data,aws_df
+    except Exception as e:
+        print(e)
+    
+def output_dir(file_name):
+    parent_directory = os.getcwd()
+    output_directory = r"SCTAssessment"
+    path = os.path.join(parent_directory,output_directory)
+    try:
+        os.makedirs(output_directory, exist_ok = True)
+        file_path = os.path.join(path,file_name)
+        return file_path
+    except OSError as e:
+        print(f"Error :{e} \n Invalid directory{path}")
 
-def read_data_from_csv(csv_filepath):
-    data = []
-    with open(csv_filepath, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            data.append(row)
-    return data
+def chart_dir(file_name):
+    parent_directory = r"SCTAssessment"
+    output_directory = r"charts"
+    try:
+        path = os.path.join(parent_directory,output_directory)
+        os.makedirs(path, exist_ok = True)
+        file_path = os.path.join(path,file_name)
+        return file_path
+    except OSError as e:
+        print(f"Error :{e} \n Invalid directory{path}")
 
-def execute_replaced_value(replaced_value,conn):
-    result = conn.execute(text(replaced_value))
-    return result
+def create_report_zip():
+    output_directory = r"SCTAssessment"
+    if output_directory and os.path.exists(output_directory):
+        shutil.make_archive(output_directory, 'zip', output_directory)
+        return True
+    else:
+        return False
+    
+def execution(data,aws_df,args,conn):
+    results = {}
+    titles = {}
+    descriptions = {}
 
-def donut_chart(merged_df, output_image_directory, args):
+    if args.pg_schema != None:
+        multiple_schema = (', '.join("'" + item + "'" for item in args.pg_schema.split(",")))
+        schema = f"({multiple_schema})"
+    else:
+        schema = '("DBSchema")'
+        
+    try:
+        if len(data.index)!=0:
+            for index, row in data.iterrows():
+                sql_query = row["query"]
+                title = row["query_subheader"]
+                merge_df = row['merge_df']
+                html_result = row['html_result']
+                csv_export = row["csv_export"]
+                query_name = row["query_name"]
+                description = row["query_description"]
+
+                replaced_value = sql_query.replace("<<POSTGRES_SCHEMA>>", schema)
+                if csv_export == "Y":
+                    output = pd.read_sql_query(text(replaced_value),conn)
+                    if len(output.index)!=0:
+                        csv_file_name = f"{query_name}.csv"
+                        output_path = output_dir(csv_file_name)
+                        output.to_csv(output_path)
+
+                elif html_result == "Y":
+                    output = pd.read_sql_query(text(replaced_value),conn)
+                    if len(output.index)!=0:
+                        results[index] = output
+                        titles[index] = title
+                        descriptions[index] = description
+
+                elif merge_df == "Y":
+                    output = pd.read_sql_query(text(replaced_value),conn)
+                    if len(output.index)!=0:
+                        merged_df = output.merge(aws_df, on="AWS Extension Dependency", how = "left").sort_values(by=["DBSchema"])
+                        merged_df = merged_df.astype({"SCT Function Reference Count": int, "Efforts(Hours)": int})
+                        merged_df.fillna({'Function category': 'INTERNAL_NOTFOUND', 'complexity': 'COMPLEX'}, inplace=True)
+                        efforts_hr = np.where(merged_df['SCT Function Reference Count'] > 1,
+                                            merged_df['SCT Function Reference Count'] * merged_df['Efforts(Hours)'] * 0.3 + 
+                                            merged_df['SCT Function Reference Count'] * merged_df['Efforts(Hours)'] * 0.7 * 0.5,
+                                            merged_df['SCT Function Reference Count'] * merged_df['Efforts(Hours)'])
+                        merged_df['Efforts(Hours)'] = efforts_hr.astype(int)
+                        results[index] = merged_df
+                        titles[index] = title
+                        descriptions[index] = description
+        if len(merged_df.index)!=0:
+            donut_chart(merged_df, args)
+            stacked_bar_chart_1(merged_df)
+            stacked_bar_chart_2(merged_df) 
+            return results,titles,descriptions
+    except Exception as e:
+        raise e
+        
+def render_html(results,titles,descriptions):
+    try:
+        render = template.render(results=results,titles=titles,descriptions=descriptions)
+        html_file_name = "sct_assessment_report.html"
+        html_path = output_dir(html_file_name)
+        with open(html_path, "w") as file:
+            file.write(render)
+        print(f"AWS SCT Extension Assessment Report created successfully\nReport : {html_path}")
+    except Exception as e:
+        print(f"{e}\nUnable to generate SCT assessment report")
+
+def donut_chart(merged_df, args):
     merged_df = merged_df.sort_values(by=["Category"])
     if args.pg_schema and len(args.pg_schema.split(',')) == 1:
-        
         efforts = merged_df.groupby("Category")["Efforts(Hours)"].sum()
         schema = merged_df["Category"].unique()
     else:
@@ -84,13 +178,15 @@ def donut_chart(merged_df, output_image_directory, args):
 
     ax.set_title("Efforts requirement")
     plt.tight_layout()
-    output_filename = os.path.join(output_image_directory, 'schema_efforts.png')
-    plt.savefig(output_filename)
+    file_name = 'schema_efforts.png'
+    output_image_directory = chart_dir(file_name)
+    plt.savefig(output_image_directory)
     plt.close()
 
-def stacked_bar_chart_1(merged_df, output_image_directory): 
+def stacked_bar_chart_1(merged_df): 
     complexity = merged_df["complexity"].unique()
     efforts = merged_df.groupby("Function category")["Efforts(Hours)"].sum()
+    efforts_sorted = efforts.sort_values(ascending=False)
     
     custom_color_map = {
                         'SIMPLE': 'lightgrey',
@@ -100,7 +196,7 @@ def stacked_bar_chart_1(merged_df, output_image_directory):
     category_colors = [custom_color_map.get(colour, 'gray') for colour in complexity]
 
     bar_width = 0.8
-    ax = efforts.plot(kind ="barh", stacked=True, width=bar_width,  figsize=(10,6), color=category_colors)
+    ax = efforts_sorted.plot(kind ="barh", stacked=True, width=bar_width,  figsize=(10,6), color=category_colors)
     for p in ax.containers:
         ax.bar_label(p, label_type="edge", fontsize=8)
     plt.xlabel('Efforts(Hours)')
@@ -109,167 +205,71 @@ def stacked_bar_chart_1(merged_df, output_image_directory):
     handles = [plt.Rectangle((0,0),1,1, color=custom_color_map[level]) for level in complexity]
     plt.legend(handles, complexity, title="Complexity")
     plt.tight_layout()
-    output_filename = os.path.join(output_image_directory, 'functionalwiseefforts.png')
-    plt.savefig(output_filename)
+    file_name = 'functionalwiseefforts.png'
+    output_image_directory = chart_dir(file_name)
+    plt.savefig(output_image_directory)
 
-def stacked_bar_chart_2(merged_df, output_image_directory):
-    grouped_data = merged_df.groupby(['DBSchema', 'complexity'])['Efforts(Hours)'].sum().unstack()
+def stacked_bar_chart_2(merged_df):
+        grouped_data = merged_df.groupby(['DBSchema', 'complexity'])['Efforts(Hours)'].sum().unstack()
+        grouped_data_sorted = grouped_data.sum(axis=1).sort_values(ascending=False)
+        grouped_sorted = grouped_data.loc[grouped_data_sorted.index]
+        x_labels = grouped_sorted.index
+        complexity_colors = {
+                            'SIMPLE': 'lightgrey',
+                            'MEDIUM': 'skyblue',
+                            'COMPLEX': 'deepskyblue',
+                            }
 
-    x_labels = grouped_data.index
-    complexity_colors = {
-    'SIMPLE': 'lightgrey',
-    'MEDIUM': 'skyblue',
-    'COMPLEX': 'deepskyblue',
-        }
+        complexities = ["SIMPLE","MEDIUM","COMPLEX"]
+        bar_width = 0.2 
+        index = np.arange(len(x_labels))  
+        fig, ax = plt.subplots(figsize=(10, 6))
 
-    complexities = merged_df['complexity'].unique()
-    bar_width = 0.2 
-    index = np.arange(len(x_labels))  
+        count_labels = []
+        for i, complexity in enumerate(complexities):
+            bar_data = grouped_data[complexity]
+            non_zero_bars = bar_data[bar_data != 0]
+            non_zero_index = index[:len(non_zero_bars)]
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-
-    count_labels = []
-    for i, complexity in enumerate(complexities):
-        bar_data = grouped_data[complexity]
-        bars = plt.bar(index + i * bar_width, bar_data, bar_width, label=complexity, color=complexity_colors[complexity])
-
-        for bar in bars:
-            height = bar.get_height()
-            count_labels.append(height)
-            ax.annotate('{:.1f}'.format(height), 
-                    xy=(bar.get_x() + bar.get_width() / 2, height),
-                    xytext=(0, 3),  
-                    textcoords="offset points",
-                    ha='center', va='bottom')
-
-    plt.xlabel('DBSchema')
-    plt.ylabel('Efforts(Hours)')
-    plt.title('Grouped Bar Chart of Efforts by DBSchema and Complexity')
-    plt.xticks(index + bar_width, x_labels, rotation=90)
-    plt.legend(title='Complexity',loc='upper left', ncol = 3)
-    plt.tight_layout()
-
-    output_filename = os.path.join(output_image_directory, 'schemawiseefforts.png')
-    plt.savefig(output_filename)
-    plt.close()   
-
-def generate_html_report(data, df2, conn, args,parser ):
-    query_subheader_content = ""
-    grouped_queries = {}
-    query_subheader_anchor_map = {}
-    
-    for item in data:
-        sql_query = item['query']
-        merge_df = item['merge_df']
-        html_result = item['html_result']
-        csv_export = item["csv_export"]
-        query_name = item["query_name"]
-
-        if not args.pg_schema:
-            replaced_value = sql_query.replace("<<POSTGRES_SCHEMA>>", f'("DBSchema")')
-
-        else:
-            schemaList = (', '.join("'" + item + "'" for item in args.pg_schema.split(',')))
-            replaced_value = sql_query.replace("<<POSTGRES_SCHEMA>>", f"({schemaList})")
-
-        if csv_export == "Y" or html_result == "Y" or merge_df == "Y":
-            result_df = pd.DataFrame() 
-            if replaced_value:
-                result = execute_replaced_value(replaced_value, conn)
-
-                result_df = pd.DataFrame(result.fetchall(), columns=result.keys())
-                if  csv_export == "Y":
-                    result_df.to_csv(os.path.join(output_directory, f"{query_name}.csv"), index=False)    
+            bars = plt.bar(non_zero_index + i * bar_width, non_zero_bars, bar_width, label=complexity, color=complexity_colors[complexity])
             
-            if query_name == 'sctextensions' and not result_df["SCT Oracle Extension Exists"].item():
-                item['query_result'] = result_df
-                merged_df = pd.DataFrame()
-                query_subheader = item.get('query_subheader', '')
-
-                if (html_result == "Y" or merge_df == "Y") and query_subheader:
-                    if query_subheader not in grouped_queries:
-                        grouped_queries[query_subheader] = []
-                        anchor_name = f"anchor_{len(grouped_queries)}"
-                        query_subheader_anchor_map[query_subheader] = anchor_name
-
-                    grouped_queries[query_subheader].append(item)
-                break;
-
-            if merge_df == "Y":
-                merged_df = result_df.merge(df2, on="AWS Extension Dependency", how = "left") 
-                merged_df['Efforts(Hours)'] = pd.to_numeric(merged_df['Efforts(Hours)'], errors='coerce').fillna("4")
-                merged_df['SCT Function Reference Count'] = merged_df['SCT Function Reference Count'].apply(int)
-                merged_df["Efforts(Hours)"] = merged_df["Efforts(Hours)"].apply(int)
-                merged_df['Function category'].fillna('INTERNAL_NOTFOUND', inplace=True)
-                merged_df['complexity'].fillna('COMPLEX', inplace=True)
-                merged_df = merged_df.sort_values(by=["DBSchema", "Category"])
-                efforts_hr = 0
-                for ind in merged_df.index:
-                    if  merged_df['SCT Function Reference Count'][ind] > 1:
-                        efforts_hr = int(merged_df['SCT Function Reference Count'][ind] * merged_df['Efforts(Hours)'][ind] * 0.3 + merged_df['SCT Function Reference Count'][ind] * merged_df['Efforts(Hours)'][ind] * 0.7 * 0.5)
-                    else:
-                        efforts_hr = int(merged_df['SCT Function Reference Count'][ind] * merged_df['Efforts(Hours)'][ind])
-                    merged_df.at[ind, 'Efforts(Hours)'] = efforts_hr
-                merged_df["Efforts(Hours)"] = round(merged_df["Efforts(Hours)"],0).apply(int)
-                item['query_result'] = merged_df
-
-                total_efforts_sum = merged_df['Efforts(Hours)'].sum()
-                query_description = item.get('query_description', '')
-                query_description += f" (Total Efforts Sum: {total_efforts_sum})"
-                item['query_description'] = query_description
-            else:
-                item['query_result'] = result_df
-
-            query_subheader = item.get('query_subheader', '')
-
-            if (html_result == "Y" or merge_df == "Y") and query_subheader:
-                if query_subheader not in grouped_queries:
-                    grouped_queries[query_subheader] = []
-                    anchor_name = f"anchor_{len(grouped_queries)}"
-                    query_subheader_anchor_map[query_subheader] = anchor_name
-
-                grouped_queries[query_subheader].append(item)
-        
-    for query_subheader, anchor_name in query_subheader_anchor_map.items():
-        query_subheader_content += f'<li><a class="content-link" href="#{anchor_name}">{query_subheader}</a></li>'
-
-    rendered_html = template.render(query_subheader_content=query_subheader_content, grouped_queries=grouped_queries, query_subheader_anchor_map=query_subheader_anchor_map)
-    return rendered_html, merged_df,rendered_html
-
-def save_html_report(html_content, output_filename,output_image_directory):
-    with open(output_filename, 'w') as f:
-        f.write(html_content)
-    return html_content
+            for bar in bars:
+                height = bar.get_height()
+                
+                count_labels.append(height)
+                ax.annotate('{:.1f}'.format(height), 
+                        xy=(bar.get_x() + bar.get_width() / 2, height),
+                        xytext=(0, 3),  
+                        textcoords="offset points",
+                        ha='center', va='bottom')
+        plt.xlabel('DBSchema')
+        plt.ylabel('Efforts(Hours)')
+        plt.title('Grouped Bar Chart of Efforts by DBSchema and Complexity')
+        plt.xticks(index + bar_width, x_labels, rotation=90)
+        plt.legend(title='Complexity',loc='upper left', ncol = 3)
+        plt.tight_layout()
+        file_name = 'schemawiseefforts.png'
+        output_image_directory = chart_dir(file_name)
+        plt.savefig(output_image_directory)
+        plt.close()
 
 if __name__== "__main__":
-
-    csv_filepath = r"sct_input.csv" 
-    csv_aws = r"awssctcomplexitymatrix.csv"
-    working_directory = r""
-    output_directory = r"SCTAssessment"
-    csv_directory = r"SCTAssessment\csv" 
+    template = load_template()
     conn,args,parser = connection_arguments()
+    data,aws_df = read_data_from_csv()
+    results,titles,descriptions = execution(data,aws_df,args,conn)
+    render_html(results,titles,descriptions)
+    if create_report_zip():
+        print(f"Report zip file is created successfully")
+    else:
+        print("Unable to create report zip")
 
-    path = os.path.join(working_directory, output_directory)
-    os.makedirs(path, exist_ok=True)
-    output_file = os.path.join(path,"sct_assessment_report.html")
-    output_image_directory = os.path.join(output_directory, 'charts')
-    os.makedirs(output_image_directory, exist_ok=True)
-    df2 = pd.read_csv(csv_aws)
-    data = read_data_from_csv(csv_filepath)
-    html_content, merged_df, rendered_html = generate_html_report(data, df2, conn, args, parser)
 
-    if not merged_df.empty:
-        donut_chart(merged_df, output_image_directory, args)
-        stacked_bar_chart_1(merged_df, output_image_directory)
-        stacked_bar_chart_2(merged_df, output_image_directory)
-    save_html_report(html_content, output_file, output_image_directory)
-    output_archive_path = 'SCTAssessment/sct_assessment_report'
-    shutil.make_archive(output_archive_path, 'zip', output_directory)
-    print("AWS SCT Extension Assessment Report created successfully")
-    output = r"SCTAssessment\sct_assessment_report.html"
-    print("Report Generated :  "+  output)
-    pdf_output_filename = os.path.join(output_directory, "sct_assessment_report.pdf")
+    
+
+
+
+  
 
 
 

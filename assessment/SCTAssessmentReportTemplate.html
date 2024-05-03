@@ -115,61 +115,45 @@
             AWS Schema Conversion Tool Extension Dependency - RDS/Amazon Aurora
         </header>      
         </h1>
-        <h2>Content</h2>
-        {% if query_subheader_content %}
+        <div class="content-section">
+            <h2>Table Content</h2>
+            <ul>
+                {% for index, content in titles.items() %}
+                    <h3><li><a href="#{{ index }}">{{ content }}</a></li></h3>
+                {% endfor %}
+            </ul>
+        </div>
         <div>
-            
-            <div class="query-subheader">
-                
-                <h3>
-                    <ul>
-                    {{ query_subheader_content|safe }}
-                    </ul>
-                </h3>
-                
-            </div>
-            {% endif %}
-            {% for query_subheader, items in grouped_queries.items() %}
-            <hr>
-            <div class="query-subheader">
-                <h3 id="{{ query_subheader_anchor_map[query_subheader] }}">{{ query_subheader }}</h3>
-            </div>
-            {% for item in items %}
-            <div class="query-section">
-                <h4>{{ item.query_description }}</h4>
-                {% if item.query_result is not none and not item.query_result.empty %}
-                
-                    <div class="charts">
-                        {% if item.merge_df == "Y" %}
-                        <img src="./charts/functionalwiseefforts.png" alt="Bar Chart" >
-                        {% endif %}
-                        {% if item.merge_df == "Y" %}
-                        <img src="./charts/schemawiseefforts.png" alt="Efforts Distribution by Complexity" >
-                        {% endif %}
-                        {% if item.merge_df == "Y" %}
-                        <img src="./charts/schema_efforts.png" alt="Bar Chart">
-                        {% endif %}
-                    </div>
-                
-                <table>
-                    <tr>
-                        {% for column in item.query_result.columns %}
-                        <th>{{ column }}</th>
-                        {% endfor %}
-                    </tr>
-                    {% for row in item.query_result.itertuples(index=False) %}
-                    <tr>
-                        {% for value in row %}
-                        <td>{{ value }}</td>
-                        {% endfor %}
-                    </tr>
+        <div class="charts">
+            <img src="./charts/schema_efforts.png" alt="Bar Chart">\
+            <img src="./charts/schemawiseefforts.png" alt="Efforts Distribution by Complexity">
+            <img src="./charts/functionalwiseefforts.png" alt="Bar Chart" >
+        </div>
+        {% for index,result in results.items()%}
+        <hr>
+        <h3 id="{{ index }}">{{ titles[index] }}</h3>
+        <h4>{{ descriptions[index] }}</h4>
+
+        <table>
+            <thead>
+                <tr>
+                    {% for column in result.columns %}
+                    <th>{{ column }}</th>
                     {% endfor %}
-                </table>
-                {% endif %}
-            </div>
-        </div>    
+                </tr>
+            </thead>
+                <tbody>
+                {% for _, row in result.iterrows() %}
+                <tr>
+                    {% for _, value in row.items() %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+                {% endfor %}
+                </tr>
+                </tbody>
+        </table>
         {% endfor %}
-        {% endfor %}
+        </div>
     </div>
 </body>
 </html>
