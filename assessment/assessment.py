@@ -18,10 +18,10 @@ def load_template():
         print(f"{e}\nUnable to load SCTAssessmentReportTemplate.html")
 
 def connection_arguments():
-    parser = argparse.ArgumentParser(description='Capture AWS SCT Extension usage complexity metrics for Proprietary database \n migrated to RDS\Amazon Aurora PostgreSQL Compataible' , formatter_class=RawTextHelpFormatter)
-    parser.add_argument('--host', required=True,help='RDS/Amazon Aurora POstgreSQL Compatible Database DNS/IP address')
-    parser.add_argument('--port', required=False, type=int,  help='Database port number (Default - 5432)' , default=5432)
-    parser.add_argument('--database', required=False, help='Database name (Default - postgres)' , default='postgres' )
+    parser = argparse.ArgumentParser(description=r'Capture AWS SCT Extension usage complexity metrics for Proprietary database migrated to RDS\Amazon Aurora PostgreSQL Compataible' , formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--host', required=True,help=r'RDS/Amazon Aurora POstgreSQL Compatible Database DNS/IP address')
+    parser.add_argument('--port', required=False, type=int,  help=r'Database port number (Default - 5432)' , default=5432)
+    parser.add_argument('--database', required=False, help=r'Database name (Default - postgres)' , default='postgres' )
     parser.add_argument('--user', required=True, help='Database user')
     parser.add_argument('--password', required=True ,help='Database password')
     parser.add_argument('--pg-schema', required=False ,help = "List of Comma separated list of schema name")
