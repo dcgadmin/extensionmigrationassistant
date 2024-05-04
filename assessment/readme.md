@@ -5,18 +5,17 @@
 Extension Migration Assistant  requires [Python](https://www.python.org/ftp/python/3.11.4/python-3.11.4-embed-amd64.zip) version 3.11.4 or above to run.
 Post cloning the assessment tool, we will need to install the dependencies.
 
+### Assessment Tool Pre-Requistics
+
+Ubuntu
+
+```
+sudo apt-get install pip
+```
 
 ####  Assesment Tool Dependency
 
 Extension Migration Assistant tool use below libraries that need to be installed as part of running.
-
-- pandas  - used for data manipulation
-- SQL alchemy - Adapter used for the database connection
-- psycopg2 - For interaction with PostgreSQL.
-- matplotlib - For visualization and plot graph
-- numpy - Used for chart data computing
-- jinja2 - required for html template rendering
-
 
 ```sh
 cd assessment
@@ -32,7 +31,7 @@ Or
 
 ```sh
 cd assessment
-pip install -r requirements.txt (For windows 64-bit)
+pip install -r requirements.txt (For Ubuntu/windows 64-bit)
 pip3 install -r requirements.txt (For macOS)
 ```
 
