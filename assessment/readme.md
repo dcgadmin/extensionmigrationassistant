@@ -29,7 +29,6 @@ Extension Migration Assistant tool use below libraries that need to be installed
 - numpy - Used for chart data computing
 - jinja2 - required for html template rendering
 
-
 ```sh
 cd assessment
 pip3 install psycopg2-binary
