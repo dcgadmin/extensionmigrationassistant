@@ -19,7 +19,7 @@ def load_template():
 
 def connection_arguments():
     parser = argparse.ArgumentParser(description=r'Capture AWS SCT Extension usage complexity metrics for Proprietary database migrated to RDS\Amazon Aurora PostgreSQL Compataible' , formatter_class=RawTextHelpFormatter)
-    parser.add_argument('--host', required=True,help=r'RDS/Amazon Aurora POstgreSQL Compatible Database DNS/IP address')
+    parser.add_argument('--host', required=True,help=r'RDS/Amazon Aurora PostgreSQL Compatible Database DNS/IP address')
     parser.add_argument('--port', required=False, type=int,  help=r'Database port number (Default - 5432)' , default=5432)
     parser.add_argument('--database', required=False, help=r'Database name (Default - postgres)' , default='postgres' )
     parser.add_argument('--user', required=True, help='Database user')
@@ -73,6 +73,16 @@ def create_report_zip():
     else:
         return False
     
+def validate_extension(conn):
+    try:
+        query = """SELECT true as sctextensionexists
+                FROM pg_catalog.pg_class c LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace LEFT JOIN pg_catalog.pg_am am ON am.oid = c.relam
+                WHERE c.relkind IN ('r') AND c.relname OPERATOR(pg_catalog.~) '^(versions)$' COLLATE pg_catalog.default AND n.nspname OPERATOR(pg_catalog.~) '^(aws_.*_ext)$' COLLATE pg_catalog.default"""
+        result = pd.read_sql_query(text(query), conn)
+        return result["sctextensionexists"].values
+    except Exception as e:
+        print(f"Issue occured while validating extension existance\n{e.__cause__}")
+
 def execution(data,aws_df,args,conn):
     results = {}
     titles = {}
@@ -83,7 +93,6 @@ def execution(data,aws_df,args,conn):
         schema = f"({multiple_schema})"
     else:
         schema = '("DBSchema")'
-        
     try:
         if len(data.index)!=0:
             for index, row in data.iterrows():
@@ -96,12 +105,13 @@ def execution(data,aws_df,args,conn):
                 description = row["query_description"]
 
                 replaced_value = sql_query.replace("<<POSTGRES_SCHEMA>>", schema)
+           
                 if csv_export == "Y":
                     output = pd.read_sql_query(text(replaced_value),conn)
                     if len(output.index)!=0:
                         csv_file_name = f"{query_name}.csv"
                         output_path = output_dir(csv_file_name)
-                        output.to_csv(output_path)
+                        output.to_csv(output_path, index = False)
 
                 elif html_result == "Y":
                     output = pd.read_sql_query(text(replaced_value),conn)
@@ -124,17 +134,47 @@ def execution(data,aws_df,args,conn):
                         results[index] = merged_df
                         titles[index] = title
                         descriptions[index] = description
+        
         if len(merged_df.index)!=0:
             donut_chart(merged_df, args)
             stacked_bar_chart_1(merged_df)
             stacked_bar_chart_2(merged_df) 
-            return results,titles,descriptions
+            return merged_df,results,titles,descriptions
     except Exception as e:
         raise e
         
-def render_html(results,titles,descriptions):
+def executive_summary(merged_df):
+    exc_summary = {}
+    schema_list = []
+    total_days = (merged_df["Efforts(Hours)"].sum() / 8).round()
+    schema = merged_df["DBSchema"].unique()
+    distinct_function = len(merged_df["AWS Extension Dependency"].unique())
+
+    for schema_name, schema_data in merged_df.groupby('DBSchema'):
+        tshirt = schema_data.groupby('complexity')['Efforts(Hours)'].sum().idxmax()
+        total_hours = schema_data['Efforts(Hours)'].sum()
+        total_schema_days = (total_hours/8).round()
+        top2_functions = schema_data.groupby('Function category')['Efforts(Hours)'].sum().nlargest(2).index.tolist()
+
+        schema_list.append({
+                            "DBSchema": schema_name,
+                            "tshirt": tshirt,
+                            "hours": total_hours ,
+                            "total_days" : total_schema_days if total_schema_days > 1 else 1,
+                            "top2function": top2_functions
+                            })
+
+    sorted_schema_list = sorted(schema_list, key=lambda d: d['hours'] , reverse=True)
+    exc_summary.update({"totaldays": total_days if total_days > 1 else 1})
+    exc_summary.update({"no_of_schema": len(schema)})
+    exc_summary.update({"no_of_functions": distinct_function})
+    exc_summary.update({"schema_list": sorted_schema_list})
+    exc_summary.update({"schema_summary": ', '.join([f"{schema['DBSchema']}: {schema['total_days']} days" for schema in exc_summary['schema_list']])})
+    return exc_summary
+
+def render_html(results,titles,descriptions,exc_summary):
     try:
-        render = template.render(results=results,titles=titles,descriptions=descriptions)
+        render = template.render(results=results,titles=titles,descriptions=descriptions,exc_summary=exc_summary)
         html_file_name = "sct_assessment_report.html"
         html_path = output_dir(html_file_name)
         with open(html_path, "w") as file:
@@ -153,14 +193,15 @@ def donut_chart(merged_df, args):
         schema = merged_df["DBSchema"].unique()
 
     total_efforts = sum(efforts)
+    colors = ['#05445E','#189AB4','#75E6DA','#D4F1F4']
+    explode = [0.05] * len(efforts)
 
     fig, ax = plt.subplots(figsize=(12, 6), subplot_kw=dict(aspect="equal"))
-    wedges, texts = ax.pie(efforts, wedgeprops=dict(width=0.5), startangle=-40)
+    wedges, texts = ax.pie(efforts, wedgeprops=dict(width=0.5), startangle=-40, explode=explode, colors=colors)
 
     bbox_props = dict(boxstyle="square,pad=0.6", fc="w", ec="k", lw=0.72)
     kw = dict(arrowprops=dict(arrowstyle="-"),
               bbox=bbox_props, zorder=0, va="center")
-
     for i, p in enumerate(wedges):
         ang = (p.theta2 - p.theta1) / 2. + p.theta1
         y = np.sin(np.deg2rad(ang))
@@ -168,10 +209,9 @@ def donut_chart(merged_df, args):
         horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]
         connectionstyle = f"angle,angleA=0,angleB={ang}"
         kw["arrowprops"].update({"connectionstyle": connectionstyle})
-
         percentage = efforts.iloc[i] / total_efforts * 100
         count = efforts.iloc[i]
-        label = f"{schema[i]}, {percentage:.1f}%, Efforts(Hours): {count}"
+        label = f"{efforts.index[i]}, {percentage:.1f}%, Efforts(Hours): {count}"
 
         ax.annotate(label, xy=(x, y), xytext=(1.25 * np.sign(x), 1.2 * y),
                     horizontalalignment=horizontalalignment, **kw)
@@ -211,9 +251,7 @@ def stacked_bar_chart_1(merged_df):
 
 def stacked_bar_chart_2(merged_df):
         grouped_data = merged_df.groupby(['DBSchema', 'complexity'])['Efforts(Hours)'].sum().unstack()
-        grouped_data_sorted = grouped_data.sum(axis=1).sort_values(ascending=False)
-        grouped_sorted = grouped_data.loc[grouped_data_sorted.index]
-        x_labels = grouped_sorted.index
+        x_labels = grouped_data.index
         complexity_colors = {
                             'SIMPLE': 'lightgrey',
                             'MEDIUM': 'skyblue',
@@ -244,7 +282,7 @@ def stacked_bar_chart_2(merged_df):
                         ha='center', va='bottom')
         plt.xlabel('DBSchema')
         plt.ylabel('Efforts(Hours)')
-        plt.title('Grouped Bar Chart of Efforts by DBSchema and Complexity')
+        plt.title('Cumulative Efforts by DBSchema and Complexity')
         plt.xticks(index + bar_width, x_labels, rotation=90)
         plt.legend(title='Complexity',loc='upper left', ncol = 3)
         plt.tight_layout()
@@ -257,14 +295,18 @@ if __name__== "__main__":
     template = load_template()
     conn,args,parser = connection_arguments()
     data,aws_df = read_data_from_csv()
-    results,titles,descriptions = execution(data,aws_df,args,conn)
-    render_html(results,titles,descriptions)
-    if create_report_zip():
-        print(f"Report zip file is created successfully")
+    if validate_extension(conn):
+        merged_df,results,titles,descriptions = execution(data,aws_df,args,conn)
+        exc_summary = executive_summary(merged_df)
+        render_html(results,titles,descriptions,exc_summary)
+        if create_report_zip():
+            print(f"Report zip file is created successfully")
+        else:
+            print("Unable to create report zip")
     else:
-        print("Unable to create report zip")
+        print(f"AWS SCT Extension Schemas does not exists in database - {args.database}")
 
-
+    
     
 
 

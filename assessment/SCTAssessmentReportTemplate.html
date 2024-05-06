@@ -26,7 +26,7 @@
         
 
         h1 {
-            font-family: Helvetica;
+            font-family: Calibri;
             color: black;
             font-size: 32px;
             font-weight: bold;
@@ -35,7 +35,7 @@
         }
 
         h2 {
-            font-family: Helvetica ;
+            font-family: Calibri ;
             color: black;
             font-size: 26px;
             font-weight: bold;
@@ -43,7 +43,7 @@
         }
 
         h3 {
-            font-family: Helvetica;
+            font-family: Calibri;
             color: #1A2B6D;
             font-size: 19px;
             font-weight: bold;
@@ -72,6 +72,12 @@
             font-family: Calibri;
             font-size: 14px;
             table-layout: auto;
+        }
+        .summary {
+            font-family: Calibri;
+            /* background-color: #316FFD; */
+            color: black;
+            font-size: 20px;
         }
 
         .charts {
@@ -115,20 +121,38 @@
             AWS Schema Conversion Tool Extension Dependency - RDS/Amazon Aurora
         </header>      
         </h1>
+        <br>
+        <h2>Executive summary</h2>
+        <div class = "summary">
+            <p>
+                Our analysis of extension dependencies reveals that a total effort of <b>{{exc_summary["totaldays"]}}</b> days will be required to transform them into native PostgreSQL options, with dependencies on  <b>{{exc_summary["no_of_functions"]}}</b> extension functions across <b>{{exc_summary["no_of_schema"]}}</b>  schemas  ( <i> {{exc_summary["schema_summary"]}}</i>).
+               </p>
+               <ul>
+               <p>
+                {% for value in exc_summary["schema_list"] %}
+                <li>Schema <b>{{value["DBSchema"]}}</b> migration efforts is <b>{{value["hours"]}}</b> hours with complexity   <b>{{value["tshirt"]}}</b> and the top functionality being
+                    <i>{{value["top2function"]|join(' and ')}}</i>.
+                </li>
+         
+                {% endfor %}
+                </p>
+                </ul>
+            <img src="./charts/schema_efforts.png" alt="Bar Chart">
+        </div>
+        <div class="charts">
+
+            <img src="./charts/schemawiseefforts.png" alt="Efforts Distribution by Complexity">
+            <img src="./charts/functionalwiseefforts.png" alt="Bar Chart" >
+        </div>
         <div class="content-section">
-            <h2>Table Content</h2>
+            <h2>Additional Details - Extensions</h2>
             <ul>
                 {% for index, content in titles.items() %}
                     <h3><li><a href="#{{ index }}">{{ content }}</a></li></h3>
                 {% endfor %}
             </ul>
         </div>
-        <div>
-        <div class="charts">
-            <img src="./charts/schema_efforts.png" alt="Bar Chart">\
-            <img src="./charts/schemawiseefforts.png" alt="Efforts Distribution by Complexity">
-            <img src="./charts/functionalwiseefforts.png" alt="Bar Chart" >
-        </div>
+
         {% for index,result in results.items()%}
         <hr>
         <h3 id="{{ index }}">{{ titles[index] }}</h3>

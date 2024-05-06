@@ -5,6 +5,18 @@
 Extension Migration Assistant  requires [Python](https://www.python.org/ftp/python/3.11.4/python-3.11.4-embed-amd64.zip) version 3.11.4 or above to run.
 Post cloning the assessment tool, we will need to install the dependencies.
 
+#### Minimal Database Privileges on RDS or Amazon Aurora PostgreSQL Compatible
+
+Minimal privileges needed to run on Databases.
+```sql
+CREATE USER sctanalyzer WITH LOGIN PASSWORD 'YourPassword';
+GRANT CONNECT ON DATABASE <<YourDatabase>> TO sctanalyzer;
+REVOKE CREATE ON SCHEMA public FROM sctanalyzer;
+
+--Provide Grants to Extensions related tables, if it failes it implies no dependency with AWS SCT Extensions
+grant usage on schema aws_oracle_ext to sctanalyzer;
+GRANT SELECT ON table aws_oracle_ext.versions  TO sctanalyzer;
+```
 
 ####  Assesment Tool Dependency
 
@@ -32,7 +44,7 @@ Or
 
 ```sh
 cd assessment
-pip install -r requirements.txt (For windows 64-bit)
+pip install -r requirements.txt (For Ubuntu / windows 64-bit)
 pip3 install -r requirements.txt (For macOS)
 ```
 
