@@ -31,7 +31,7 @@ The Extension Pack is beneficial for accelerating and migrating workloads from c
 
 To illustrate its functionality, let's consider a sample function, INSTR, commonly used in the Oracle world for text or string processing. During the conversion phase, the Conversion tool utilizes the Extension Pack to transform each occurrence of INSTR within procedural code into AWS_ORACLE_EXT.INSTR. Internally, AWS_ORACLE_EXT.INSTR provides the wrapped implementation for INSTR functionality, similar to how it operates in Oracle.
 
-However, it's important to note that, over time, customers who have migrated their databases to  PostgreSQL-compatible instances may encounter challenges if they decide to migrate to any another cloud vendor or self host instance on another platform. This challenge arises due to the dependencies and inherent stickiness of the Extension Pack and its usage only when you are within that cloud vendor.
+However, it's important to note that, over time, customers who have migrated their databases to  PostgreSQL-compatible instances may encounter challenges if they decide to migrate to any another cloud vendor or self host instance on another platform. This challenge arises due to the dependencies and inherent stickiness of the Extension Pack and its usage applicable only when you are within that specific cloud vendor.
 
 <img width="1113" alt="image" src="https://github.com/dcgadmin/sctextensionmigrator/assets/137620464/bb79ce83-e010-48ec-92b7-5283ff7ff5cc">
 
