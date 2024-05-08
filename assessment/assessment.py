@@ -190,8 +190,8 @@ def render_html(results,titles,descriptions,exc_summary):
         html_path = output_dir(args, html_file_name)
         with open(html_path, "w") as file:
             file.write(render)
-        print(f"AWS SCT Extension Assessment Report created successfully\nReport : {html_path}")
-    except Exception as e:
+        print(f"Extension Assessment Report created successfully\nReport : {html_path}")
+    except Exception as e:   
         print(f"{e}\nUnable to generate SCT assessment report")
 
 def donut_chart(merged_df, args):

@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <!-- <title>SQL Query Report</title> -->
+    <title>DataCloudGaze-Extension Dependency Assessment</title>
     <style>
-        /* body {
-            font-family: Arial, sans-serif;
-            margin: 100px;
-            background-color: #F2F2F2;
-        } */
+
 
         .container {
             width: 100%; 
@@ -23,37 +19,35 @@
             color: #316ffd;
         }
             
-        
-
         h1 {
-            font-family: Calibri;
+            font-family: Arial;
             color: black;
-            font-size: 32px;
+            font-size: 28px;
             font-weight: bold;
             text-align: center;
 
         }
 
         h2 {
-            font-family: Calibri ;
+            font-family: Arial ;
             color: black;
-            font-size: 26px;
+            font-size: 20px;
             font-weight: bold;
             /* margin: 20px 0 10px; */
         }
 
         h3 {
-            font-family: Calibri;
+            font-family: Arial;
             color: #1A2B6D;
-            font-size: 19px;
+            font-size: 16px;
             font-weight: bold;
             /* margin-top: 20px; */
         }
 
         h4 {
-            font-family: Calibri;
+            font-family: Arial;
             color: black;
-            font-size: 17px;
+            font-size: 14px;
             /*font-weight: bold;
             margin-top: 20px;    */
         }
@@ -61,7 +55,7 @@
 
         .query-subheader, p.content-text {
             color: #1A2B6D;
-            font-size: 21px;
+            font-size: 18px;
             font-weight: bold;
             margin: 20px 0 10px;
         }
@@ -69,15 +63,15 @@
         table {
             border-collapse: collapse;
             /* width: 100%; */
-            font-family: Calibri;
-            font-size: 14px;
+            font-family: Arial;
+            font-size: 12px;
             table-layout: auto;
         }
         .summary {
-            font-family: Calibri;
+            font-family: Arial;
             /* background-color: #316FFD; */
             color: black;
-            font-size: 20px;
+            font-size: 16px;
         }
 
         .charts {
@@ -100,21 +94,26 @@
         }
 
         th {
-            font-family: Calibri;
+            font-family: Arial;
             font-weight: bold;
             background-color: #9FC5E0;
             color: #FFFFFF;
-            font-size: 16px;
+            font-size: 14px;
         }
         td {
-            font-family: Calibri;
-            /* background-color: #316FFD; */
+            font-family: Arial;
             color: black;
-            font-size: 16px;
+            font-size: 12px;
         }
 
         tr:nth-child(even) {
             background-color: #F2F2F2;
+        }
+        body { background-color: #fafafa; }
+        footer {
+            font-family: Arial;
+            font-size: 16px;
+            text-align: right;
         }
     </style>
 </head>
@@ -130,7 +129,7 @@
         <h2>Executive summary</h2>
         <div class = "summary">
             <p>
-                Our analysis of extension dependencies reveals that a total effort of <b>{{exc_summary["totaldays"]}}</b> days will be required to transform them into native PostgreSQL options, with dependencies on  <b>{{exc_summary["no_of_functions"]}}</b> extension functions across <b>{{exc_summary["no_of_schema"]}}</b>  schemas  ( <i> {{exc_summary["schema_summary"]}}</i>).
+                Our analysis of extension dependencies identifies <b>{{exc_summary["no_of_functions"]}}</b> extension functions spread across <b>{{exc_summary["no_of_schema"]}}</b>  schemas  ( <i> {{exc_summary["schema_summary"]}}</i>). <br>The estimated effort to transform these functions into free, open-source PostgreSQL options totals <b>{{exc_summary["totaldays"]}}</b> days. This effort includes conversion, testing, and documentation tasks. These transformations aim to leverage the benefits of PostgreSQL's open-source nature and align with our commitment to open-source solutions and freedom to migrate.
                </p>
                <ul>
                <p>
@@ -187,5 +186,10 @@
             <img src="../logo/DataCloudGaze.png" alt="logo" >
         </div>
     </div>
+    <footer>
+        <div class="container">
+            <p>Assessment build by DataCloudGaze Consulting, please connect at <b>contact@datacloudgaze.com </b>for further details</p>
+        </div>
+    </footer>
 </body>
 </html>
