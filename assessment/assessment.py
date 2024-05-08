@@ -18,8 +18,8 @@ def load_template():
         print(f"{e}\nUnable to load SCTAssessmentReportTemplate.html")
 
 def connection_arguments():
-    parser = argparse.ArgumentParser(description=r'Capture AWS SCT Extension usage complexity metrics for Proprietary database migrated to RDS\Amazon Aurora PostgreSQL Compataible' , formatter_class=RawTextHelpFormatter)
-    parser.add_argument('--host', required=True,help=r'RDS/Amazon Aurora PostgreSQL Compatible Database DNS/IP address')
+    parser = argparse.ArgumentParser(description=r'Assess extension dependency in PostgreSQL databases' , formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--host', required=True,help=r'RDS/Amazon Aurora PostgreSQL Compatible Database Endpoint')
     parser.add_argument('--port', required=False, type=int,  help=r'Database port number (Default - 5432)' , default=5432)
     parser.add_argument('--database', required=False, help=r'Database name (Default - postgres)' , default='postgres' )
     parser.add_argument('--user', required=True, help='Database user')
@@ -179,8 +179,8 @@ def render_html(results,titles,descriptions,exc_summary):
         html_path = output_dir(html_file_name)
         with open(html_path, "w") as file:
             file.write(render)
-        print(f"AWS SCT Extension Assessment Report created successfully\nReport : {html_path}")
-    except Exception as e:
+        print(f"Extension Assessment Report created successfully\nReport : {html_path}")
+    except Exception as e:   
         print(f"{e}\nUnable to generate SCT assessment report")
 
 def donut_chart(merged_df, args):
@@ -216,7 +216,7 @@ def donut_chart(merged_df, args):
         ax.annotate(label, xy=(x, y), xytext=(1.25 * np.sign(x), 1.2 * y),
                     horizontalalignment=horizontalalignment, **kw)
 
-    ax.set_title("Efforts requirement")
+    ax.set_title("Schemawise efforts requirement")
     plt.tight_layout()
     file_name = 'schema_efforts.png'
     output_image_directory = chart_dir(file_name)
@@ -300,7 +300,7 @@ if __name__== "__main__":
         exc_summary = executive_summary(merged_df)
         render_html(results,titles,descriptions,exc_summary)
         if create_report_zip():
-            print(f"Report zip file is created successfully")
+            print(f"Extension Assessment Report zip file is created successfully")
         else:
             print("Unable to create report zip")
     else:
