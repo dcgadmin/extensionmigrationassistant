@@ -18,43 +18,39 @@ grant usage on schema aws_oracle_ext to sctanalyzer;
 GRANT SELECT ON table aws_oracle_ext.versions  TO sctanalyzer;
 ```
 
-####  Assesment Tool Dependency
+####  Assesment Tool Installation Dependency
 
-Extension Migration Assistant tool use below libraries that need to be installed as part of running.
+Steps to clone and run extensionmigrationassistance on RDS or Amazon Aurora PostgreSQL Databases.
 
-- pandas  - used for data manipulation
-- SQL alchemy - Adapter used for the database connection
-- psycopg2 - For interaction with PostgreSQL.
-- matplotlib - For visualization and plot graph
-- numpy - Used for chart data computing
-- jinja2 - required for html template rendering
-
+-step 1 : clone sctextensionassessment repo 
 ```sh
-cd assessment
-pip3 install psycopg2-binary
-pip3 install matplotlib==3.5.3
-pip3 install SQLAlchemy==2.0.22
-pip3 install pandas==1.3.5
-pip3 install numpy==1.21.6
-pip3 install Jinja2==3.1.2
+git clone https://github.com/dcgadmin/extensionmigrationassistant.git
 ```
-
-Or
+-step 2 : Create virtual environment using python(Optional, we can follow Step 4 onwards as well)
+```sh
+python -m venv <<environment_name>>
+```
+-step 3 : Activate virtual environment
+```sh
+<<environment_name>>\Scripts\activate
+```
+-step 4 : switch to project directory
+```sh
+cd extensionmigrationassistant\assessment
+```
+-step 5 : install dependencies using pip3/pip and requirement.txt
 
 ```sh
-cd assessment
 pip install -r requirements.txt (For Ubuntu / windows 64-bit)
 pip3 install -r requirements.txt (For macOS)
 ```
-
-
 
 ### Running Assessment tool
 
 Extension Migration Assistant tool will need access to PostgreSQL databases, primarily on RDS or Amazon Aurora.
 
 ```sh
-python assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD [--pg-schema PG_SCHEMA]
+python assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD [--pg-schema PG_SCHEMA] [--outputpath OUTPUTPATH]
 ```
 You can see the details of every argument required by using following steps
 
@@ -62,41 +58,48 @@ You can see the details of every argument required by using following steps
 cd assessment
 python assessment.py --help
 
-  --host HOST           RDS/Amazon Aurora POstgreSQL Compatible Database DNS/IP address
-  --port PORT           Database port number (Default - 5432)
-  --database DATABASE   Database name (Default - postgres)
-  --user USER           Database user
-  --password PASSWORD   Database password
-  --pg-schema PG_SCHEMA List of Comma separated list of schema name
+  --host HOST               RDS/Amazon Aurora PostgreSQL Compatible Database endpoint
+  --port PORT               Database port number (Default - 5432)
+  --database DATABASE       Database name (Default - postgres)
+  --user USER               Database user
+  --password PASSWORD       Database password
+  --pg-schema PG_SCHEMA     List of Comma separated list of schema name(Optional)
+  --outputpath OUTPUTPATH   Provide output path of report (Optional)
 ```
 
 pg-schema is optional. To see the result according to schema provide single or comma separated list.If pg-schema is not provided it will assume to run for all schema within specified database.
 
-##### Sample 1 - running Extension Migration Assistant  with specific shcema.
+##### Sample 1 - running Extension Migration Assistant on specific shcema.
 ```sh
 python assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD --pg-schema PG_SCHEMA1
 ```
 
-##### Sample 2 - running Extension Migration Assistant  for multiple list of schema's.
+##### Sample 2 - running Extension Migration Assistant on multiple list of schema's.
 ```sh
 python assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD --pg-schema PG_SCHEMA1,PG_SCHEMA2
 ```
 
-##### Sample 3 - running Extension Migration Assistant for all schema just skip pg-schema argument.
+##### Sample 3 - running Extension Migration Assistant for all schema.
 ```sh
 python assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD
 ```
 
+##### Sample 4 - running Extension Migration Assistant for all schema with output to specific path
+```sh
+python assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD --outputpath <<OUTPUT_PATH>>
+```
+
 ### Assessment Output
 
-Once Extension Migration Assistant Assessment is completed, you will find newly created reports within a directory (SCTAssessment) as below
+Once Extension Migration Assistant Assessment is completed, you will find newly created reports within a directory (SCTExtensionAssessment) as below
 ```sh
 AWS SCT Extension Assessment Report created successfully
-Report Generated :  SCTAssessment\sct_assessment_report.html
+Report : ....\extensionassessmentreport.html
+Report zip file is created successfully
 ```
 You will also get a zip file which contains the html report, charts (.png) and csv file as per input csv(csv_export) flag
 ```sh
-SCTAssessment.zip
+SCTExtensionAssessment.zip
 ```
 
 

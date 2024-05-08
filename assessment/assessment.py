@@ -18,13 +18,14 @@ def load_template():
         print(f"{e}\nUnable to load SCTAssessmentReportTemplate.html")
 
 def connection_arguments():
-    parser = argparse.ArgumentParser(description=r'Capture AWS SCT Extension usage complexity metrics for Proprietary database migrated to RDS\Amazon Aurora PostgreSQL Compataible' , formatter_class=RawTextHelpFormatter)
-    parser.add_argument('--host', required=True,help=r'RDS/Amazon Aurora PostgreSQL Compatible Database DNS/IP address')
+    parser = argparse.ArgumentParser(description=r'Assess AWS Schema Conversion Tool Extensions dependencies and provide conversion efforts to native PostgreSQL.' , formatter_class=RawTextHelpFormatter)
+    parser.add_argument('--host', required=True,help=r'RDS/Amazon Aurora PostgreSQL Compatible Database endpoint')
     parser.add_argument('--port', required=False, type=int,  help=r'Database port number (Default - 5432)' , default=5432)
     parser.add_argument('--database', required=False, help=r'Database name (Default - postgres)' , default='postgres' )
     parser.add_argument('--user', required=True, help='Database user')
     parser.add_argument('--password', required=True ,help='Database password')
-    parser.add_argument('--pg-schema', required=False ,help = "List of Comma separated list of schema name")
+    parser.add_argument('--pg-schema', required=False ,help = "List of Comma separated list of schema name(Optional)")
+    parser.add_argument('--outputpath', required=False ,help = "Provide output path of report (Optional)")
     args = parser.parse_args()
     
     try:
@@ -43,19 +44,26 @@ def read_data_from_csv():
     except Exception as e:
         print(e)
     
-def output_dir(file_name):
-    parent_directory = os.getcwd()
-    output_directory = r"SCTAssessment"
+def output_dir(args, file_name):
+    if args.outputpath:
+        parent_directory = args.outputpath
+    else:
+        parent_directory = os.getcwd()
+    output_directory = r"SCTExtensionAssessment"
     path = os.path.join(parent_directory,output_directory)
     try:
-        os.makedirs(output_directory, exist_ok = True)
+        os.makedirs(path, exist_ok = True)
         file_path = os.path.join(path,file_name)
         return file_path
     except OSError as e:
         print(f"Error :{e} \n Invalid directory{path}")
 
-def chart_dir(file_name):
-    parent_directory = r"SCTAssessment"
+def chart_dir(args, file_name):
+    if args.outputpath:
+        parent_directory = os.path.join(args.outputpath, "SCTExtensionAssessment")
+    else:
+        parent_directory = r"SCTExtensionAssessment"
+    
     output_directory = r"charts"
     try:
         path = os.path.join(parent_directory,output_directory)
@@ -65,8 +73,11 @@ def chart_dir(file_name):
     except OSError as e:
         print(f"Error :{e} \n Invalid directory{path}")
 
-def create_report_zip():
-    output_directory = r"SCTAssessment"
+def create_report_zip(args):
+    if args.outputpath:
+        output_directory = os.path.join(args.outputpath, "SCTExtensionAssessment")
+    else:
+        output_directory = r"SCTExtensionAssessment"
     if output_directory and os.path.exists(output_directory):
         shutil.make_archive(output_directory, 'zip', output_directory)
         return True
@@ -110,7 +121,7 @@ def execution(data,aws_df,args,conn):
                     output = pd.read_sql_query(text(replaced_value),conn)
                     if len(output.index)!=0:
                         csv_file_name = f"{query_name}.csv"
-                        output_path = output_dir(csv_file_name)
+                        output_path = output_dir(args,csv_file_name)
                         output.to_csv(output_path, index = False)
 
                 elif html_result == "Y":
@@ -175,8 +186,8 @@ def executive_summary(merged_df):
 def render_html(results,titles,descriptions,exc_summary):
     try:
         render = template.render(results=results,titles=titles,descriptions=descriptions,exc_summary=exc_summary)
-        html_file_name = "sct_assessment_report.html"
-        html_path = output_dir(html_file_name)
+        html_file_name = "extensionassessmentreport.html"
+        html_path = output_dir(args, html_file_name)
         with open(html_path, "w") as file:
             file.write(render)
         print(f"AWS SCT Extension Assessment Report created successfully\nReport : {html_path}")
@@ -215,11 +226,12 @@ def donut_chart(merged_df, args):
 
         ax.annotate(label, xy=(x, y), xytext=(1.25 * np.sign(x), 1.2 * y),
                     horizontalalignment=horizontalalignment, **kw)
-
+    center_label = f"Total Efforts(Days):\n{round((total_efforts/8),0) if round((total_efforts/8),0) > 1 else 1 }"
+    ax.text(0, 0, center_label, ha='center', va='center', fontsize=14)
     ax.set_title("Efforts requirement")
     plt.tight_layout()
     file_name = 'schema_efforts.png'
-    output_image_directory = chart_dir(file_name)
+    output_image_directory = chart_dir(args, file_name)
     plt.savefig(output_image_directory)
     plt.close()
 
@@ -246,7 +258,7 @@ def stacked_bar_chart_1(merged_df):
     plt.legend(handles, complexity, title="Complexity")
     plt.tight_layout()
     file_name = 'functionalwiseefforts.png'
-    output_image_directory = chart_dir(file_name)
+    output_image_directory = chart_dir(args, file_name)
     plt.savefig(output_image_directory)
 
 def stacked_bar_chart_2(merged_df):
@@ -287,7 +299,7 @@ def stacked_bar_chart_2(merged_df):
         plt.legend(title='Complexity',loc='upper left', ncol = 3)
         plt.tight_layout()
         file_name = 'schemawiseefforts.png'
-        output_image_directory = chart_dir(file_name)
+        output_image_directory = chart_dir(args, file_name)
         plt.savefig(output_image_directory)
         plt.close()
 
@@ -299,7 +311,7 @@ if __name__== "__main__":
         merged_df,results,titles,descriptions = execution(data,aws_df,args,conn)
         exc_summary = executive_summary(merged_df)
         render_html(results,titles,descriptions,exc_summary)
-        if create_report_zip():
+        if create_report_zip(args):
             print(f"Report zip file is created successfully")
         else:
             print("Unable to create report zip")
