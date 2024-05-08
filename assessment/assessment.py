@@ -228,7 +228,7 @@ def donut_chart(merged_df, args):
                     horizontalalignment=horizontalalignment, **kw)
     center_label = f"Total Efforts(Days):\n{round((total_efforts/8),0) if round((total_efforts/8),0) > 1 else 1 }"
     ax.text(0, 0, center_label, ha='center', va='center', fontsize=14)
-    ax.set_title("Efforts requirement")
+    ax.set_title("Extension Assessment - Efforts")
     plt.tight_layout()
     file_name = 'schema_efforts.png'
     output_image_directory = chart_dir(args, file_name)
