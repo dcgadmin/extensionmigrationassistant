@@ -97,10 +97,10 @@ AWS SCT Extension Assessment Report created successfully
 Report : ....\extensionassessmentreport.html
 Report zip file is created successfully
 ```
-You will also get a zip file which contains the html report, charts (.png) and csv file as per input csv(csv_export) flag
+You will also get a zip file which contains the html report, charts (.png) and csv file with additional dependencies details.
 ```sh
 SCTExtensionAssessment.zip
 ```
 
 
-Check out [sample report](https://drive.google.com/file/d/1wvciyyuvc7ZeWTHUw1EJ2xd48WKjKCyP/view?usp=sharing) generated on sample schema migrated using AWS Schema Conversion Tool and using Extension packs(AWS_ORACLE_EXT).
+Check out [sample report]([https://drive.google.com/file/d/1wvciyyuvc7ZeWTHUw1EJ2xd48WKjKCyP/view?usp=sharing](https://drive.google.com/file/d/1b3kvWF0jE6zo3S0WAfZ7_MxdUVghNjCr/view?usp=sharing)) generated on sample schema migrated using AWS Schema Conversion Tool to RDS PostgreSQL with its underlying Extension packs(AWS_ORACLE_EXT).
