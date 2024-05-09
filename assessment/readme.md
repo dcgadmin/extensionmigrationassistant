@@ -103,4 +103,4 @@ SCTExtensionAssessment.zip
 ```
 
 
-Check out [sample report]([https://drive.google.com/file/d/1wvciyyuvc7ZeWTHUw1EJ2xd48WKjKCyP/view?usp=sharing](https://drive.google.com/file/d/1b3kvWF0jE6zo3S0WAfZ7_MxdUVghNjCr/view?usp=sharing)) generated on sample schema migrated using AWS Schema Conversion Tool to RDS PostgreSQL with its underlying Extension packs(AWS_ORACLE_EXT).
+Check out [sample report](https://drive.google.com/file/d/1b3kvWF0jE6zo3S0WAfZ7_MxdUVghNjCr/view?usp=sharing) generated on sample schema migrated using AWS Schema Conversion Tool to RDS PostgreSQL with its underlying Extension packs(AWS_ORACLE_EXT).
