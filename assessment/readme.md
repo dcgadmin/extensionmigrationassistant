@@ -28,15 +28,15 @@ git clone https://github.com/dcgadmin/extensionmigrationassistant.git
 ```
 -step 2 : Create virtual environment using python(Optional, we can follow Step 4 onwards as well)
 ```sh
-python -m venv <<environment_name>>
+python3 -m venv <<environment_name>>
 ```
 -step 3 : Activate virtual environment
 ```sh
-<<environment_name>>\Scripts\activate
+source <<environment_name>>/bin/activate
 ```
 -step 4 : switch to project directory
 ```sh
-cd extensionmigrationassistant\assessment
+cd extensionmigrationassistant/assessment/
 ```
 -step 5 : install dependencies using pip3/pip and requirement.txt
 
