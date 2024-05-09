@@ -312,11 +312,11 @@ if __name__== "__main__":
         exc_summary = executive_summary(merged_df)
         render_html(results,titles,descriptions,exc_summary)
         if create_report_zip(args):
-            print(f"Report zip file is created successfully")
+            print(f"Extension Assesment Report zip file is created successfully")
         else:
-            print("Unable to create report zip")
+            print("Unable to create Extension Assesment Report zip")
     else:
-        print(f"AWS SCT Extension Schemas does not exists in database - {args.database}")
+        print(fr"AWS SCT Extension Schema's(aws_%_ext) does not exists in database - {args.database}")
 
     
     
