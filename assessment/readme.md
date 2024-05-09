@@ -7,7 +7,7 @@ Post cloning the assessment tool, we will need to install the dependencies.
 
 #### Minimal Database Privileges on RDS or Amazon Aurora PostgreSQL Compatible
 
-Minimal privileges needed to run on Databases.
+Minimal required privileges to run on PostgreSQL Databases.
 ```sql
 CREATE USER sctanalyzer WITH LOGIN PASSWORD 'YourPassword';
 GRANT CONNECT ON DATABASE <<YourDatabase>> TO sctanalyzer;
