@@ -262,6 +262,9 @@ def stacked_bar_chart_1(merged_df):
     plt.savefig(output_image_directory)
 
 def stacked_bar_chart_2(merged_df):
+        complexities = {}
+        count_labels = []
+
         grouped_data = merged_df.groupby(['DBSchema', 'complexity'])['Efforts(Hours)'].sum().unstack()
         x_labels = grouped_data.index
         complexity_colors = {
@@ -269,14 +272,23 @@ def stacked_bar_chart_2(merged_df):
                             'MEDIUM': 'skyblue',
                             'COMPLEX': 'deepskyblue',
                             }
-
-        complexities = ["SIMPLE","MEDIUM","COMPLEX"]
+        data = merged_df["complexity"].unique()
+        for index, value in enumerate(data):
+            if value == "SIMPLE":
+                complexities.update({0 : "SIMPLE"})
+            if value == "MEDIUM":
+                complexities.update({1 : "MEDIUM"})
+            if value == "COMPLEX": 
+                complexities.update({2 : "COMPLEX"})                                                                                                                                     
+                
+        key_list = list(complexities.keys())
+        key_list.sort()
+        sorted_complexities = {i: complexities[i] for i in key_list}.values()
         bar_width = 0.2 
         index = np.arange(len(x_labels))  
         fig, ax = plt.subplots(figsize=(10, 6))
 
-        count_labels = []
-        for i, complexity in enumerate(complexities):
+        for i, complexity in enumerate(sorted_complexities):
             bar_data = grouped_data[complexity]
             non_zero_bars = bar_data[bar_data != 0]
             non_zero_index = index[:len(non_zero_bars)]
