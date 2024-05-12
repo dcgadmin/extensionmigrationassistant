@@ -1,6 +1,6 @@
-﻿Jinja2==3.1.2
-matplotlib==3.8.0
-numpy==1.26.1
-pandas==2.1.1
-psycopg2==2.9.9
-SQLAlchemy==2.0.22
+﻿Jinja2
+matplotlib
+numpy
+pandas
+psycopg2-binary
+SQLAlchemy
