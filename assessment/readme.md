@@ -18,7 +18,18 @@ grant usage on schema aws_oracle_ext to sctanalyzer;
 GRANT SELECT ON table aws_oracle_ext.versions  TO sctanalyzer;
 ```
 
-####  Assesment Tool Installation Dependency
+####  Assesment Tool Installation 
+
+###  Option  1 - Run from Python Publish Package(PyPI).
+
+Run by installing directly using PyPI package manager.
+```
+pip install dcg-extensionmigrationassistant
+
+extension-assessment --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD [--pg-schema PG_SCHEMA] [--outputpath OUTPUTPATH]
+```
+
+###  Option  2 - Build from Code.
 
 Steps to clone and run extensionmigrationassistance on RDS or Amazon Aurora PostgreSQL Databases.
 
