@@ -23,10 +23,15 @@ GRANT SELECT ON table aws_oracle_ext.versions  TO sctanalyzer;
 ###  Option  1 - Run from Python Publish Package(PyPI).
 
 Run by installing directly using PyPI package manager.
+
 ```
 pip install dcg-extensionmigrationassistant
 
 extension-assessment --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD [--pg-schema PG_SCHEMA] [--outputpath OUTPUTPATH]
+
+Extension Assessment Report created successfully
+Report : .............SCTExtensionAssessment/extensionassessmentreport.html
+Extension Assesment Report zip file is created successfully
 ```
 
 ###  Option  2 - Build from Code.
