@@ -1,17 +1,17 @@
 # Extension Migration Assistance.
 
-Our Goal is to transform any migration to PostgreSQL or PostgreSQL Compatible as Open, Agile and Free from any kind of lockin. The aim is to provide customers moved away from commercial database engines like Oracle or MSSQL in past or planning to move with the freedom to choose any platform without hidden restrictions or stickiness or proprietary extensions.
+Our Goal is to transform any migration to PostgreSQL or PostgreSQL Compatible on AWS as Open, Agile and Free from any kind of lockin. The aim is to provide customers moved away from commercial database engines like Oracle or MSSQL in past or planning to move with the freedom to choose any platform without hidden restrictions or stickiness or proprietary extensions.
 
 
 ## Introduction
-An Extension is primarily introduced as part of the conversion process from a commercial engine like Oracle or SQL Server to an open-source compatible option like PostgreSQL when using the Conversion Tool. It serves to conceal the procedural complexity by utilizing wrapper code defined within extensions stored as schemas, such as aws_oracle_ext, aws_sqlserver_ext, and others.
+An Extension is primarily introduced as part of the conversion process from a commercial engine like Oracle or SQL Server to an open-source compatible option like PostgreSQL when using the AWS Schema Conversion Tool. It serves to conceal the procedural complexity by utilizing wrapper code defined within extensions stored as schemas, such as aws_oracle_ext, aws_sqlserver_ext, and others.
 
-For customers migrating from a commercial engine like Oracle to SQL Server, the Extension Pack acts as a proprietary toolset. Conversion Tool introduces it as wrapper code that mimics the functionality of commercial engine features or functions. This wrapper code is encapsulated within schemas and is extensively leveraged in the converted PL\pgsql code.
+For customers migrating from a commercial engine like Oracle to SQL Server, the Extension Pack acts as a proprietary toolset. Conversion Tool introduces it as wrapper code that mimics the functionality of commercial engine features or functions. This wrapper code is encapsulated within schemas and is extensively leveraged in the converted PL\pgsql code. In future it will act as invisible lock-in to move out of AWS.
 
-<img width="454" alt="image" src="https://github.com/dcgadmin/sctextensionmigrator/assets/137620464/e6797f5f-3917-4d8b-8b31-e6e57ddc1732">
+<img width="700" alt="image" src="https://github.com/dcgadmin/extensionmigrationassistant/assets/52906469/927b315b-90fa-4726-9f4b-430826586e76">
 
 
-Below are some of the pros and cons of using ConversionExtension Pack on migrated databases primary on RDS or Amazon Aurora PostgreSQL Compatible.
+Below are some of the pros and cons of using Conversion Extension Pack on migrated databases primary on RDS or Amazon Aurora PostgreSQL Compatible.
 
 ### Initial Value to Customer
 
@@ -20,10 +20,10 @@ Below are some of the pros and cons of using ConversionExtension Pack on migrate
 
 ### Cons 
 
-- Known Performance issues with Extension pack.
-- Reduce Code readability and future development or refactor.
-- No Documentation, Maintainence for future releases or enhancement. 
 - Tightly coupled with a Specific Cloud Vendor and not open to move freely.
+- Reduce Code readability and future development or refactor.
+- No Documentation, Maintainence for future postresql releases or enhancement.
+- Known Performance issues with Extension pack.
 
 ## How Conversion Extension Pack is Introduce
 
@@ -35,6 +35,12 @@ However, it's important to note that, over time, customers who have migrated the
 
 <img width="1113" alt="image" src="https://github.com/dcgadmin/sctextensionmigrator/assets/137620464/bb79ce83-e010-48ec-92b7-5283ff7ff5cc">
 
+<br />
+
+AWS Schema Conversion Tool - Default Conversion.
+<br />
+
+<img width="1113" alt="image" src="https://github.com/dcgadmin/extensionmigrationassistant/assets/52906469/2c0bf5f6-a94b-4843-9249-0eee38c5f849">
 
 ## Extension Pack Dependency Assessment
 
@@ -44,7 +50,7 @@ Through our assessment process, we can scan the migrated code in PostgreSQL or M
 
 By analyzing the usage patterns, we can categorize the dependency on the extension pack as Simple, Medium, or Complex. This categorization helps to highlight the efforts required to address extension dependencies and resolve them using native PostgreSQL solutions like Orafce or native functionality.
 
-For further read and sample report, please check out.
+For further read on installtion and sample report, please check out.
 https://github.com/dcgadmin/extensionmigrationassistant/blob/main/assessment/readme.md
 
 ### Contact Details for further details
