@@ -7,7 +7,7 @@ Post cloning the assessment tool, we will need to install the dependencies.
 
 #### Minimal Database Privileges on RDS or Amazon Aurora PostgreSQL Compatible
 
-Minimal required privileges to run on PostgreSQL Databases.
+Minimal required privileges to run on RDS/Amazon Aurora PostgreSQL Databases.
 ```sql
 CREATE USER sctanalyzer WITH LOGIN PASSWORD 'YourPassword';
 GRANT CONNECT ON DATABASE <<YourDatabase>> TO sctanalyzer;
@@ -50,13 +50,13 @@ pip3 install -r requirements.txt (For Amazon Linux/macOS)
 Extension Migration Assistant tool will need access to PostgreSQL databases, primarily on RDS or Amazon Aurora.
 
 ```sh
-python assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD [--pg-schema PG_SCHEMA] [--outputpath OUTPUTPATH]
+python3 assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD [--pg-schema PG_SCHEMA] [--outputpath OUTPUTPATH]
 ```
 You can see the details of every argument required by using following steps
 
 ```sh
 cd assessment
-python assessment.py --help
+python3 assessment.py --help
 
   --host HOST               RDS/Amazon Aurora PostgreSQL Compatible Database endpoint
   --port PORT               Database port number (Default - 5432)
@@ -71,22 +71,22 @@ pg-schema is optional. To see the result according to schema provide single or c
 
 ##### Sample 1 - running Extension Migration Assistant on specific shcema.
 ```sh
-python assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD --pg-schema PG_SCHEMA1
+python3 assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD --pg-schema PG_SCHEMA1
 ```
 
 ##### Sample 2 - running Extension Migration Assistant on multiple list of schema's.
 ```sh
-python assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD --pg-schema PG_SCHEMA1,PG_SCHEMA2
+python3 assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD --pg-schema PG_SCHEMA1,PG_SCHEMA2
 ```
 
 ##### Sample 3 - running Extension Migration Assistant for all schema.
 ```sh
-python assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD
+python3 assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD
 ```
 
 ##### Sample 4 - running Extension Migration Assistant for all schema with output to specific path
 ```sh
-python assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD --outputpath <<OUTPUT_PATH>>
+python3 assessment.py --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD --outputpath <<OUTPUT_PATH>>
 ```
 
 ### Assessment Output
