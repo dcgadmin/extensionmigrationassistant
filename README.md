@@ -3,7 +3,7 @@
 Our Goal is to transform any migration to PostgreSQL or PostgreSQL Compatible on AWS as Open, Agile and Free from any kind of lockin. The aim is to provide customers moved away from commercial database engines like Oracle or MSSQL in past or planning to move with the freedom to choose any platform without hidden restrictions or stickiness or proprietary extensions.
 
 
-## Introduction
+### Introduction
 An Extension is primarily introduced as part of the conversion process from a commercial engine like Oracle or SQL Server to an open-source compatible option like PostgreSQL when using the AWS Schema Conversion Tool. It serves to conceal the procedural complexity by utilizing wrapper code defined within extensions stored as schemas, such as aws_oracle_ext, aws_sqlserver_ext, and others.
 
 For customers migrating from a commercial engine like Oracle to SQL Server, the Extension Pack acts as a proprietary toolset. Conversion Tool introduces it as wrapper code that mimics the functionality of commercial engine features or functions. This wrapper code is encapsulated within schemas and is extensively leveraged in the converted PL\pgsql code. In future it will act as invisible lock-in to move out of AWS.
@@ -25,7 +25,7 @@ Below are some of the pros and cons of using Conversion Extension Pack on migrat
 - No Documentation, Maintainence for future postresql releases or enhancement.
 - Known Performance issues with Extension pack.
 
-## How Conversion Extension Pack is Introduce
+### How Conversion Extension Pack is Introduce
 
 The Extension Pack is beneficial for accelerating and migrating workloads from commercial engines to AWS Database targets like RDS or Amazon Aurora PostgreSQL. It significantly accelerates the conversion process and simplifies the migration to managed instances.
 
@@ -42,7 +42,7 @@ AWS Schema Conversion Tool - Default Conversion.
 
 <img width="1113" alt="image" src="https://github.com/dcgadmin/extensionmigrationassistant/assets/52906469/2c0bf5f6-a94b-4843-9249-0eee38c5f849">
 
-## Extension Pack Dependency Assessment
+### Extension Pack Dependency Assessment
 
 Customer awareness of extension dependencies and their usage within the overall database schema or code is crucial for those migrated to  databases like RDS or Amazon Aurora and using extension code beneath procedural functionalty.
 
@@ -50,10 +50,18 @@ Through our assessment process, we can scan the migrated code in PostgreSQL or M
 
 By analyzing the usage patterns, we can categorize the dependency on the extension pack as Simple, Medium, or Complex. This categorization helps to highlight the efforts required to address extension dependencies and resolve them using native PostgreSQL solutions like Orafce or native functionality.
 
-For further read on installtion and sample report, please check out.
+### Extension Pack Dependency Assessment - Sample Report
+Check out Extension assessment sample report run on RDS PostgreSQL for sample Oracle schema migrated using AWS Schema Conversion Tool.
+
+[sample report](https://drive.google.com/file/d/1b3kvWF0jE6zo3S0WAfZ7_MxdUVghNjCr/view?usp=sharing) 
+
+### Extension Dependency Assessment - Installtion
+For further read on installtion and generating extension dependency report, please check out.
 https://github.com/dcgadmin/extensionmigrationassistant/blob/main/assessment/readme.md
 
 ### Contact Details for further details
+
 If you are looking for automated solution to transform embedded extensions packs within procedural or schema, let us know we an assist and provide guidance.
 Our motto is to make yours database codebases as native and open for all platform.
-Contact@datacloudgaze.com
+
+contact@datacloudgaze.com
