@@ -42,7 +42,7 @@ cd extensionmigrationassistant/assessment/
 
 ```sh
 pip install -r requirements.txt (For Ubuntu / windows 64-bit)
-pip3 install -r requirements.txt (For macOS)
+pip3 install -r requirements.txt (For Amazon Linux/macOS)
 ```
 
 ### Running Assessment tool
