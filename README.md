@@ -55,7 +55,7 @@ Check out Extension assessment sample report run on RDS PostgreSQL for sample Or
 
 [sample report](https://drive.google.com/file/d/1b3kvWF0jE6zo3S0WAfZ7_MxdUVghNjCr/view?usp=sharing) 
 
-### Extension Dependency Assessment - Installtion
+### Extension Dependency Assessment - Installation
 For further read on installtion and generating extension dependency report, please check out.
 https://github.com/dcgadmin/extensionmigrationassistant/blob/main/assessment/readme.md
 
