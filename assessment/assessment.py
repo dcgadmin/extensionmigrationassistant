@@ -249,8 +249,13 @@ def stacked_bar_chart_1(merged_df):
 
     bar_width = 0.8
     ax = efforts_sorted.plot(kind ="barh", stacked=True, width=bar_width,  figsize=(10,6), color=category_colors)
-    for p in ax.containers:
-        ax.bar_label(p, label_type="edge", fontsize=8)
+    ##for p in ax.containers:
+    ##    ax.bar_label(p, label_type="edge", fontsize=8)
+    # Manually add bar labels
+    for container in ax.containers:
+        for i, bar in enumerate(container):
+            width = bar.get_width()
+            ax.text(width, bar.get_y() + bar.get_height() / 2, f'{int(width)}', va='center', ha='left', fontsize=8)
     plt.xlabel('Efforts(Hours)')
     plt.ylabel('Function category')
     plt.title('Efforts by Function category and Complexity')
