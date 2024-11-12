@@ -39,7 +39,7 @@ def connection_arguments():
 def read_data_from_csv():
     try:
         data = pd.read_csv("sct_input.csv")
-        aws_df = pd.read_csv("awssctcomplexitymatrix.csv")
+        aws_df = pd.read_csv("updated_awssctcomplexitymatrix.csv")
         return data,aws_df
     except Exception as e:
         print(e)
@@ -137,17 +137,25 @@ def execution(data,aws_df,args,conn):
                         merged_df = output.merge(aws_df, on="AWS Extension Dependency", how = "left").sort_values(by=["DBSchema"])
                         merged_df = merged_df.astype({"SCT Function Reference Count": int, "Efforts(Hours)": int})
                         merged_df.fillna({'Function category': 'INTERNAL_NOTFOUND', 'complexity': 'COMPLEX'}, inplace=True)
-                        efforts_hr = np.where(merged_df['SCT Function Reference Count'] > 1,
+
+                        efforts = np.where(merged_df['SCT Function Reference Count'] > 1,
                                             merged_df['SCT Function Reference Count'] * merged_df['Efforts(Hours)'] * 0.3 + 
                                             merged_df['SCT Function Reference Count'] * merged_df['Efforts(Hours)'] * 0.7 * 0.5,
                                             merged_df['SCT Function Reference Count'] * merged_df['Efforts(Hours)'])
-                        merged_df['Efforts(Hours)'] = efforts_hr.astype(int)
+                        dcg_efforts = np.where(merged_df['SCT Function Reference Count'] > 1,
+                                                merged_df['SCT Function Reference Count'] * merged_df['DCG efforts'] * 0.7 + 
+                                                merged_df['SCT Function Reference Count'] * merged_df['DCG efforts'] * 0.3 * 0.5,
+                                                merged_df['SCT Function Reference Count'] * merged_df['DCG efforts'])
+                        
+                        merged_df['Efforts(Hours)'] = efforts.astype(int)
+                        merged_df['DCG efforts'] = dcg_efforts
                         results[index] = merged_df
                         titles[index] = title
                         descriptions[index] = description
         
         if len(merged_df.index)!=0:
-            donut_chart(merged_df, args)
+            donut_chart1(merged_df, args)
+            donut_chart2(merged_df, args)
             stacked_bar_chart_1(merged_df)
             stacked_bar_chart_2(merged_df) 
             return merged_df,results,titles,descriptions
@@ -164,6 +172,7 @@ def executive_summary(merged_df):
     for schema_name, schema_data in merged_df.groupby('DBSchema'):
         tshirt = schema_data.groupby('complexity')['Efforts(Hours)'].sum().idxmax()
         total_hours = schema_data['Efforts(Hours)'].sum()
+        dcg_total_days = (merged_df["DCG efforts"].sum() / 8).round()
         total_schema_days = (total_hours/8).round()
         top2_functions = schema_data.groupby('Function category')['Efforts(Hours)'].sum().nlargest(2).index.tolist()
 
@@ -177,6 +186,7 @@ def executive_summary(merged_df):
 
     sorted_schema_list = sorted(schema_list, key=lambda d: d['hours'] , reverse=True)
     exc_summary.update({"totaldays": total_days if total_days > 1 else 1})
+    exc_summary.update({"dcg_total_days": dcg_total_days if dcg_total_days > 1 else 1})
     exc_summary.update({"no_of_schema": len(schema)})
     exc_summary.update({"no_of_functions": distinct_function})
     exc_summary.update({"schema_list": sorted_schema_list})
@@ -194,7 +204,7 @@ def render_html(results,titles,descriptions,exc_summary):
     except Exception as e:   
         print(f"{e}\nUnable to generate SCT assessment report")
 
-def donut_chart(merged_df, args):
+def donut_chart1(merged_df, args):
     merged_df = merged_df.sort_values(by=["Category"])
     if args.pg_schema and len(args.pg_schema.split(',')) == 1:
         efforts = merged_df.groupby("Category")["Efforts(Hours)"].sum()
@@ -230,7 +240,48 @@ def donut_chart(merged_df, args):
     ax.text(0, 0, center_label, ha='center', va='center', fontsize=14)
     ax.set_title("Extension Assessment - Efforts")
     plt.tight_layout()
-    file_name = 'schema_efforts.png'
+    file_name = 'schema_efforts1.png'
+    output_image_directory = chart_dir(args, file_name)
+    plt.savefig(output_image_directory)
+    plt.close()
+
+def donut_chart2(merged_df, args):
+    merged_df = merged_df.sort_values(by=["Category"])
+    if args.pg_schema and len(args.pg_schema.split(',')) == 1:
+        efforts = merged_df.groupby("Category")["DCG efforts"].sum()
+        schema = merged_df["Category"].unique()
+    else:
+        efforts = merged_df.groupby("DBSchema")["DCG efforts"].sum()
+        schema = merged_df["DBSchema"].unique()
+
+    total_efforts = sum(efforts)
+    colors = ['#05445E','#189AB4','#75E6DA','#D4F1F4']
+    explode = [0.05] * len(efforts)
+
+    fig, ax = plt.subplots(figsize=(12, 6), subplot_kw=dict(aspect="equal"))
+    wedges, texts = ax.pie(efforts, wedgeprops=dict(width=0.5), startangle=-40, explode=explode, colors=colors)
+
+    bbox_props = dict(boxstyle="square,pad=0.6", fc="w", ec="k", lw=0.72)
+    kw = dict(arrowprops=dict(arrowstyle="-"),
+              bbox=bbox_props, zorder=0, va="center")
+    for i, p in enumerate(wedges):
+        ang = (p.theta2 - p.theta1) / 2. + p.theta1
+        y = np.sin(np.deg2rad(ang))
+        x = np.cos(np.deg2rad(ang))
+        horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]
+        connectionstyle = f"angle,angleA=0,angleB={ang}"
+        kw["arrowprops"].update({"connectionstyle": connectionstyle})
+        percentage = efforts.iloc[i] / total_efforts * 100
+        count = efforts.iloc[i]
+        label = f"{efforts.index[i]}, {percentage:.1f}%, Efforts(Hours): {count}"
+
+        ax.annotate(label, xy=(x, y), xytext=(1.25 * np.sign(x), 1.2 * y),
+                    horizontalalignment=horizontalalignment, **kw)
+    center_label = f"Total Efforts(Days):\n{round((total_efforts/8),0) if round((total_efforts/8),0) > 1 else 1 }"
+    ax.text(0, 0, center_label, ha='center', va='center', fontsize=14)
+    ax.set_title("Extension Assessment - Efforts")
+    plt.tight_layout()
+    file_name = 'schema_efforts2.png'
     output_image_directory = chart_dir(args, file_name)
     plt.savefig(output_image_directory)
     plt.close()
