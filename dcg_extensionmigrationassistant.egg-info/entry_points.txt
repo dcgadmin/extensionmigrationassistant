@@ -1,0 +1,2 @@
+[console_scripts]
+extension-assessment = assessment.assessment:main

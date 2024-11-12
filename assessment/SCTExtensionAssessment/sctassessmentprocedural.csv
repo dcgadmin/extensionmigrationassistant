@@ -1,0 +1,3 @@
+DBSchema,Category,DB Obj Name,Sub-Category,AWS Extension Dependency,SCT Function Reference Count
+sample,Procedural,fnsplitstring,Standalone-Functions,aws_sqlserver_ext.strpos3,1.0
+sample,Procedural,supportingmaterial_insert,Standalone - Procedure,aws_sqlserver_ext.tomsbit,2.0

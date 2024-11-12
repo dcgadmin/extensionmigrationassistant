@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DataCloudGaze-Extension Dependency Assessment</title>
+    <style>
+
+
+        .container {
+            width: auto; 
+            /* max-width: 1100px;   */
+            margin: 0 auto;
+            padding : 10px;
+
+        }
+        a {
+            color : #1A2B6D  ;
+        }
+        a:hover {
+            color: #316ffd;
+        }
+            
+        h1 {
+            font-family: Calibri;
+            color: black;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+
+        }
+
+        h2 {
+            font-family: Calibri ;
+            color: black;
+            font-size: 20px;
+            font-weight: bold;
+            /* margin: 20px 0 10px; */
+        }
+
+        h3 {
+            font-family: Calibri;
+            color: #1A2B6D;
+            font-size: 16px;
+            font-weight: bold;
+            /* margin-top: 20px; */
+        }
+
+        h4 {
+            font-family: Calibri;
+            color: black;
+            font-size: 14px;
+            /*font-weight: bold;
+            margin-top: 20px;    */
+        }
+
+
+        .query-subheader, p.content-text {
+            color: #1A2B6D;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 10px;
+        }
+        
+        table {
+            border-collapse: collapse;
+            /* width: 100%; */
+            font-family: Calibri;
+            font-size: 14px;
+            table-layout: auto;
+        }
+        .summary {
+            font-family: Calibri;
+            /* background-color: #316FFD; */
+            color: black;
+            font-size: 20px;
+        }
+
+        .charts {
+            display: block;
+            max-width: 100%;
+            height: auto; 
+        
+
+        }
+        .logo img {
+            float: right;
+            width: 12%;
+            height:auto;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 5px;
+        }
+
+        th {
+            font-family: Calibri;
+            font-weight: bold;
+            background-color: #9FC5E0;
+            color: #FFFFFF;
+            font-size: 16px;
+        }
+        td {
+            font-family: Calibri;
+            color: black;
+            font-size: 14px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #F2F2F2;
+        }
+        body { background-color: #fafafa; }
+        footer {
+            font-family: Calibri;
+            font-size: 16px;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- <img src="Final Design.png" class="logo"> -->
+        <h1>
+        <header>       
+            AWS Schema Conversion Tool Extension Dependency - RDS/Amazon Aurora
+        </header>      
+        </h1>
+        <br>
+        <h2>Executive summary</h2>
+        <div class = "summary">
+            <p>
+                Our analysis of extension dependencies identifies <b>{{exc_summary["no_of_functions"]}}</b> extension functions spread across <b>{{exc_summary["no_of_schema"]}}</b>  schemas  ( <i> {{exc_summary["schema_summary"]}}</i>). <br>The estimated effort to transform these functions into free, open-source PostgreSQL options totals <b>{{exc_summary["totaldays"]}}</b> days. This effort includes conversion, testing, and documentation tasks. These transformations aim to leverage the benefits of PostgreSQL's open-source nature and align with our commitment to open-source solutions and freedom to migrate.
+               </p>
+               <ul>
+               <p>
+                {% for value in exc_summary["schema_list"] %}
+                <li>Schema <b>{{value["DBSchema"]}}</b> migration efforts is <b>{{value["hours"]}}</b> hours with complexity   <b>{{value["tshirt"]}}</b> and the top functionality being
+                    <i>{{value["top2function"]|join(' and ')}}</i>.
+                </li>
+         
+                {% endfor %}
+                </p>
+                </ul>
+            <img src="./charts/schema_efforts.png" alt="Bar Chart">
+        </div>
+        <div class="charts">
+
+            <img src="./charts/schemawiseefforts.png" alt="Efforts Distribution by Complexity">
+            <img src="./charts/functionalwiseefforts.png" alt="Bar Chart" >
+        </div>
+        <div class="content-section">
+            <h2>Additional Details - Extensions</h2>
+            <ul>
+                {% for index, content in titles.items() %}
+                    <h3><li><a href="#{{ index }}">{{ content }}</a></li></h3>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% for index,result in results.items()%}
+        <hr>
+        <h3 id="{{ index }}">{{ titles[index] }}</h3>
+        <h4>{{ descriptions[index] }}</h4>
+
+        <table>
+            <thead>
+                <tr>
+                    {% for column in result.columns %}
+                    <th>{{ column }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+                <tbody>
+                {% for _, row in result.iterrows() %}
+                <tr>
+                    {% for _, value in row.items() %}
+                    <td>{{ value }}</td>
+                    {% endfor %}
+                {% endfor %}
+                </tr>
+                </tbody>
+        </table>
+        {% endfor %}
+        </div>
+        <footer>
+            <div class="container">
+                <p>Assessment build by DataCloudGaze Consulting.
+                    <br>
+                    Please connect at <b>contact@datacloudgaze.com </b>for further details</p>
+                <div class="logo"><img  src="https://static.wixstatic.com/media/5b8722_05a065ee3bee45428038293a3d45e92e~mv2.png/v1/fill/w_478,h_66,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/dcg_logo.png" alt="datacloudgaze" ></div>
+            </div>
+        </footer>
+            
+    </div>
+
+</body>
+</html>

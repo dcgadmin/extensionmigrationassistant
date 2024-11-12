@@ -1,0 +1,126 @@
+Metadata-Version: 2.1
+Name: dcg-extensionmigrationassistant
+Version: 1.0.1
+Summary: Detect Lock-in Extension wrapper introduce as part of conversion tool
+Home-page: https://github.com/dcgadmin/extensionmigrationassistant.git
+Author: DataCloudGaze Consulting
+Author-email: contact@datacloudgaze.com
+License: MIT License
+        
+        Copyright (c) 2023 DataCloudGaze
+        
+        Permission is hereby granted, free of charge, to any person obtaining a copy
+        of this software and associated documentation files (the "Software"), to deal
+        in the Software without restriction, including without limitation the rights
+        to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+        copies of the Software, and to permit persons to whom the Software is
+        furnished to do so, subject to the following conditions:
+        
+        The above copyright notice and this permission notice shall be included in all
+        copies or substantial portions of the Software.
+        
+        THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+        IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+        FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+        AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+        LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+        SOFTWARE.
+        
+Classifier: Programming Language :: Python :: 3
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Environment :: Console
+Requires-Python: >=3.0
+Description-Content-Type: text/markdown
+License-File: LICENSE.txt
+
+
+
+### Installation
+
+Extension Migration Assistant  requires [Python](https://www.python.org/ftp/python/3.11.4/python-3.11.4-embed-amd64.zip) version 3.11.4 or above to run.
+Post cloning the assessment tool, we will need to install the dependencies.
+
+#### Minimal Database Privileges on RDS or Amazon Aurora PostgreSQL Compatible
+
+Minimal required privileges to run on RDS/Amazon Aurora PostgreSQL Databases.
+```sql
+CREATE USER sctanalyzer WITH LOGIN PASSWORD 'YourPassword';
+GRANT CONNECT ON DATABASE <<YourDatabase>> TO sctanalyzer;
+REVOKE CREATE ON SCHEMA public FROM sctanalyzer;
+
+--Provide Grants to Extensions related tables, if it failes it implies no dependency with AWS SCT Extensions
+grant usage on schema aws_oracle_ext to sctanalyzer;
+GRANT SELECT ON table aws_oracle_ext.versions  TO sctanalyzer;
+```
+
+####  Extension assesment tool installation
+
+Steps to run extensionmigrationassistance on compute machine for RDS or Amazon Aurora PostgreSQL Databases.
+
+-install dcg-extensionmigrationassistant Python packages 
+```sh
+pip3 install dcg-extensionmigrationassistant
+```
+
+### Running Assessment tool
+
+Extension Migration Assistant tool will need access to PostgreSQL databases, primarily on RDS or Amazon Aurora.
+
+```sh
+extension-assessment --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD [--pg-schema PG_SCHEMA] [--outputpath OUTPUTPATH]
+```
+You can see the details of every argument required by using following steps
+
+```sh
+
+extension-assessment --help
+
+  --host HOST               RDS/Amazon Aurora PostgreSQL Compatible Database endpoint
+  --port PORT               Database port number (Default - 5432)
+  --database DATABASE       Database name (Default - postgres)
+  --user USER               Database user
+  --password PASSWORD       Database password
+  --pg-schema PG_SCHEMA     List of Comma separated list of schema name(Optional)
+  --outputpath OUTPUTPATH   Provide output path of report (Optional)
+```
+
+pg-schema is optional. To see the result according to schema provide single or comma separated list.If pg-schema is not provided it will assume to run for all schema within specified database.
+
+##### Sample 1 - running Extension Migration Assistant on specific shcema.
+```sh
+extension-assessment --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD --pg-schema PG_SCHEMA1
+```
+
+##### Sample 2 - running Extension Migration Assistant on multiple list of schema's.
+```sh
+extension-assessment --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD --pg-schema PG_SCHEMA1,PG_SCHEMA2
+```
+
+##### Sample 3 - running Extension Migration Assistant for all schema.
+```sh
+extension-assessment --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD
+```
+
+##### Sample 4 - running Extension Migration Assistant for all schema with output to specific path
+```sh
+extension-assessment --host HOST [--port PORT] [--database DATABASE] --user USER --password PASSWORD --outputpath <<OUTPUT_PATH>>
+```
+
+### Assessment Output
+
+Once Extension Migration Assistant Assessment is completed, you will find newly created reports within a directory (SCTExtensionAssessment) as below
+```sh
+AWS SCT Extension Assessment Report created successfully
+Report : ....\extensionassessmentreport.html
+Report zip file is created successfully
+```
+You will also get a zip file which contains the html report, charts (.png) and csv file with additional dependencies details.
+```sh
+SCTExtensionAssessment.zip
+```
+
+
+Check out [sample report](https://drive.google.com/file/d/1b3kvWF0jE6zo3S0WAfZ7_MxdUVghNjCr/view?usp=sharing) generated on sample schema migrated using AWS Schema Conversion Tool to RDS PostgreSQL with its underlying Extension packs(AWS_ORACLE_EXT).
